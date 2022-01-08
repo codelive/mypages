@@ -8,20 +8,17 @@
 */
 
 $(function() {
-  const $topbarWrapper = $("#topbar-wrapper");
-  const topbarHeight = $topbarWrapper.outerHeight();
-  const $topbarTitle = $("#topbar-title");
-
-  const ATTR_SCROLL_UP = "scrolling-up";
-  const SCROLL_MARK = "scroll-focus";
+  const topbarHeight = ScrollHelper.getTopbarHeight();
+  const $topbarTitle = ScrollHelper.getTopbarTitle();
   const REM = 16; // in pixels
-  let tocScrollUpCount = 0;
+  const ATTR_SCROLL_FOCUS = "scroll-focus";
 
   $("a[href*='#']")
     .not("[href='#']")
     .not("[href='#0']")
     .click(function(event) {
-      if (this.pathname.replace(/^\//, "") !== location.pathname.replace(/^\//, "")) {
+      if (this.pathname.replace(/^\//, "") !==
+            location.pathname.replace(/^\//, "")) {
         return;
       }
 
@@ -52,9 +49,8 @@ $(function() {
       let destOffset = $target.offset().top -= REM / 2;
 
       if (destOffset < curOffset) { // scroll up
-        $topbarWrapper.removeClass("topbar-down").addClass("topbar-up");
-        $topbarWrapper.attr(ATTR_SCROLL_UP, true);
-        tocScrollUpCount += 1;
+        ScrollHelper.hideTopbar();
+        ScrollHelper.addScrollUpTask();
 
         if (isMobileViews && isPortrait) {
           destOffset -= topbarHeight;
@@ -72,18 +68,18 @@ $(function() {
         $target.focus();
 
         /* clean up old scroll mark */
-        if ($(`[${SCROLL_MARK}=true]`).length) {
-          $(`[${SCROLL_MARK}=true]`).attr(SCROLL_MARK, false);
+        if ($(`[${ATTR_SCROLL_FOCUS}=true]`).length) {
+          $(`[${ATTR_SCROLL_FOCUS}=true]`).attr(ATTR_SCROLL_FOCUS, false);
         }
 
         /* Clean :target links */
         if ($(":target").length) { /* element that visited by the URL with hash */
-          $(":target").attr(SCROLL_MARK, false);
+          $(":target").attr(ScrollHelper.getScrollMark(), false);
         }
 
         /* set scroll mark to footnotes */
         if (toFootnote || toFootnoteRef) {
-          $target.attr(SCROLL_MARK, true);
+          $target.attr(ATTR_SCROLL_FOCUS, true);
         }
 
         if ($target.is(":focus")) { /* Checking if the target was focused */
@@ -93,12 +89,8 @@ $(function() {
           $target.focus(); /* Set focus again */
         }
 
-        if (typeof $topbarWrapper.attr(ATTR_SCROLL_UP) !== "undefined") {
-          tocScrollUpCount -= 1;
-
-          if (tocScrollUpCount <= 0) {
-            $topbarWrapper.attr(ATTR_SCROLL_UP, "false");
-          }
+        if (ScrollHelper.hasScrollUpTask()) {
+          ScrollHelper.popScrollUpTask();
         }
       });
     }); /* click() */
