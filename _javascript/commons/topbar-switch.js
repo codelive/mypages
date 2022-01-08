@@ -4,17 +4,15 @@
 
 $(function() {
   const $topbarWrapper = $("#topbar-wrapper");
-  const $topbarTitle = $("#topbar-title");
   const $panel = $("#panel-wrapper");
   const $searchInput = $("#search-input");
 
   const CLASS_TOPBAR_UP = "topbar-up";
   const CLASS_TOPBAR_DOWN = "topbar-down";
-  const ATTR_TOC_SCROLLING_UP = "toc-scrolling-up"; // topbar locked
+  const ATTR_SCROLLING_UP = "scrolling-up"; // topbar locked
 
   let didScroll;
   let lastScrollTop = 0;
-
   const delta = $topbarWrapper.outerHeight();
   const topbarHeight = $topbarWrapper.outerHeight();
 
@@ -27,21 +25,23 @@ $(function() {
     }
 
     if (st > lastScrollTop ) { // Scroll Down
-      if (st > topbarHeight) {
-        $topbarWrapper.removeClass(CLASS_TOPBAR_DOWN).addClass(CLASS_TOPBAR_UP);
-        $panel.removeClass(CLASS_TOPBAR_DOWN);
+      $topbarWrapper.removeClass(CLASS_TOPBAR_DOWN).addClass(CLASS_TOPBAR_UP);
+      $panel.removeClass(CLASS_TOPBAR_DOWN);
 
-        if ($searchInput.is(":focus")) {
-          $searchInput.blur(); /* remove focus */
-        }
+      if ($searchInput.is(":focus")) {
+        $searchInput.blur(); /* remove focus */
       }
     } else  {// Scroll up
       // did not reach the bottom of the document, i.e., still have space to scroll up
       if (st + $(window).height() < $(document).height()) {
-        let tocScrollingUp = $topbarWrapper.attr(ATTR_TOC_SCROLLING_UP);
+        let tocScrollingUp = $topbarWrapper.attr(ATTR_SCROLLING_UP);
         if (typeof tocScrollingUp !== "undefined") {
+          if (tocScrollingUp === "true") {
+            return;
+          }
+
           if (tocScrollingUp === "false") {
-            $topbarWrapper.removeAttr(ATTR_TOC_SCROLLING_UP);
+            $topbarWrapper.removeAttr(ATTR_SCROLLING_UP);
           }
 
         } else {
@@ -54,10 +54,21 @@ $(function() {
     lastScrollTop = st;
   }
 
-  $(window).scroll(function(event) {
-    if ($topbarTitle.is(":hidden")) {
-      didScroll = true;
+  $(window).on("orientationchange",function() {
+    if ($(window).scrollTop() === 0) {
+      return;
     }
+
+    if ($(window).width() < $(window).height()) { // before rotating, it is still in portrait mode.
+      $topbarWrapper.removeClass(CLASS_TOPBAR_DOWN).addClass(CLASS_TOPBAR_UP);
+    }
+  });
+
+  $(window).scroll(function(event) {
+    if (didScroll) {
+      return;
+    }
+    didScroll = true;
   });
 
   setInterval(function() {

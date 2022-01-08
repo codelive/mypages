@@ -12,7 +12,7 @@ $(function() {
   const topbarHeight = $topbarWrapper.outerHeight();
   const $topbarTitle = $("#topbar-title");
 
-  const ATTR_TOC_SCROLLING = "toc-scrolling-up";
+  const ATTR_SCROLL_UP = "scrolling-up";
   const SCROLL_MARK = "scroll-focus";
   const REM = 16; // in pixels
   let tocScrollUpCount = 0;
@@ -21,7 +21,6 @@ $(function() {
     .not("[href='#']")
     .not("[href='#0']")
     .click(function(event) {
-
       if (this.pathname.replace(/^\//, "") !== location.pathname.replace(/^\//, "")) {
         return;
       }
@@ -36,9 +35,8 @@ $(function() {
       let selector = hash.includes(":") ? hash.replace(/\:/g, "\\:") : hash;
       let $target = $(selector);
 
-      let parent = $(this).parent().prop("tagName");
-      let isAnchor = RegExp(/^H\d/).test(parent);
-      let isMobileViews = !$topbarTitle.is(":hidden");
+      let isMobileViews = $topbarTitle.is(":visible");
+      let isPortrait = $(window).width() < $(window).height();
 
       if (typeof $target === "undefined") {
         return;
@@ -50,25 +48,20 @@ $(function() {
         history.pushState(null, null, hash);
       }
 
-      let curOffset = isAnchor ? $(this).offset().top : $(window).scrollTop();
+      let curOffset = $(window).scrollTop();
       let destOffset = $target.offset().top -= REM / 2;
 
       if (destOffset < curOffset) { // scroll up
-        if (!isAnchor && !toFootnote) { // trigger by ToC item
-          if (!isMobileViews) { // on desktop/tablet screens
-            $topbarWrapper.removeClass("topbar-down").addClass("topbar-up");
-            // Send message to `${JS_ROOT}/commons/topbar-switch.js`
-            $topbarWrapper.attr(ATTR_TOC_SCROLLING, true);
-            tocScrollUpCount += 1;
-          }
-        }
+        $topbarWrapper.removeClass("topbar-down").addClass("topbar-up");
+        $topbarWrapper.attr(ATTR_SCROLL_UP, true);
+        tocScrollUpCount += 1;
 
-        if ((isAnchor || toFootnoteRef) && isMobileViews) {
+        if (isMobileViews && isPortrait) {
           destOffset -= topbarHeight;
         }
 
-      } else {
-        if (isMobileViews) {
+      } else { // scroll down
+        if (isMobileViews && isPortrait) {
           destOffset -= topbarHeight;
         }
       }
@@ -100,11 +93,11 @@ $(function() {
           $target.focus(); /* Set focus again */
         }
 
-        if (typeof $topbarWrapper.attr(ATTR_TOC_SCROLLING) !== "undefined") {
+        if (typeof $topbarWrapper.attr(ATTR_SCROLL_UP) !== "undefined") {
           tocScrollUpCount -= 1;
 
           if (tocScrollUpCount <= 0) {
-            $topbarWrapper.attr(ATTR_TOC_SCROLLING, "false");
+            $topbarWrapper.attr(ATTR_SCROLL_UP, "false");
           }
         }
       });
