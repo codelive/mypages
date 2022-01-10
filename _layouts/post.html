@@ -120,6 +120,8 @@ tail_includes:
   </div>
   {% endif %}
 
+  <div id="gitalk-container"></div>
+
   <div class="post-tail-bottom
     d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
     <div class="license-wrapper">
@@ -142,3 +144,16 @@ tail_includes:
   </div><!-- .post-tail-bottom -->
 
 </div><!-- div.post-tail-wrapper -->
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+  clientID: '6467bcf200ee3afc1a67',
+  clientSecret: 'c438cd03564adc6ba8b25bb24ef4f9f593c99958',
+  repo: 'codelive.github.io',
+  owner: 'codelive',
+  admin: ['codelive'],
+  id: location.pathname,      // Ensure uniqueness and length less than 50
+  distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
