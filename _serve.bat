@@ -1,1 +1,1 @@
-bundle exec jekyll serve -d ../codelive.github.io
+call bundle exec jekyll serve
