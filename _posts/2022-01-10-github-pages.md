@@ -55,7 +55,7 @@ tags: [github]
 
 - 过一会就可以通过 https://codelive.github.io访问你的站点了
 
-- 回到myages下面，编辑 `_config.yml`文件，进行一些配置，再重新build->copy->commit & push
+- 回到mypages下面，编辑 `_config.yml`文件，进行一些配置，再重新build->copy->commit & push
 
 ​	
 
